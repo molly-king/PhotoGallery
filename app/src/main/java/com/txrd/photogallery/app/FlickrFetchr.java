@@ -24,6 +24,11 @@ public class FlickrFetchr {
     private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
     private static final String API_KEY = "aa3295803575cee4e4f659bc143c4113";
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
+    private static final String METHOD_SEARCH = "flickr.photos.search";
+    private static final String PARAM_TAGS = "tags";
+    private static final String TAG_DERBY = "roller derby";
+    private static final String PARAM_LICENSE = "license";
+    private static final String LICENSE_OPEN = "7";
     private static final String PARAM_EXTRAS = "extras";
     private static final String XML_PHOTO = "photo";
     private static final String PARAM_PAGENUM = "page";
@@ -88,9 +93,11 @@ public class FlickrFetchr {
         ArrayList<GalleryItem> items = new ArrayList<GalleryItem>();
         try{
             String url = Uri.parse(ENDPOINT).buildUpon()
-                    .appendQueryParameter("method", METHOD_GET_RECENT)
+                    .appendQueryParameter("method", METHOD_SEARCH)
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                    .appendQueryParameter(PARAM_TAGS, TAG_DERBY)
+//                    .appendQueryParameter(PARAM_LICENSE, LICENSE_OPEN)
                     .appendQueryParameter(PARAM_PAGENUM, String.valueOf(page))
                     .appendQueryParameter(PARAM_PER_PAGE, PER_PAGE_50)
                     .build().toString();

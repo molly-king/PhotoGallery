@@ -115,7 +115,7 @@ public class PhotoGalleryFragment extends Fragment {
                 }
 
                 ImageView imageView = (ImageView) convertView.findViewById(R.id.gallery_item_imageView);
-                imageView.setImageResource(R.drawable.true_roots);
+                imageView.setImageResource(R.drawable.skate_placeholder);
                 GalleryItem item = getItem(position);
                 mThumbnailThread.queueThumbnail(imageView, item.getmUrl());
 
