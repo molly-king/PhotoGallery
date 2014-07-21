@@ -116,21 +116,34 @@ public class PhotoGalleryFragment extends Fragment {
 
                 ImageView imageView = (ImageView) convertView.findViewById(R.id.gallery_item_imageView);
                 imageView.setImageResource(R.drawable.skate_placeholder);
+                //this keeps randomly giving me null pointer errors. No idea why yet.
                 GalleryItem item = getItem(position);
                 mThumbnailThread.queueThumbnail(imageView, item.getmUrl());
 
             } else {
                 //last entry, click to get next round of photos
-                convertView = getActivity().getLayoutInflater()
-                        .inflate(R.layout.get_next_set, parent, false);
-                //todo:check if you're at last page, change onclick to reset pageNum to 1
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        pageNum++;
-                        new FetchItemsTask().execute();
-                    }
-                });
+                if (pageNum < FlickrFetchr.getTotalPages()){
+                    convertView = getActivity().getLayoutInflater()
+                            .inflate(R.layout.get_next_set, parent, false);
+                    //todo:check if you're at last page, change onclick to reset pageNum to 1
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNum++;
+                            new FetchItemsTask().execute();
+                        }
+                    });
+                } else {
+                    convertView = getActivity().getLayoutInflater()
+                            .inflate(R.layout.back_to_start, parent, false);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            pageNum = 1;
+                            new FetchItemsTask().execute();
+                        }
+                    });
+                }
 
             }
             return convertView;

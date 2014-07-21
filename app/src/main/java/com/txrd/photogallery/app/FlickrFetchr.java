@@ -26,7 +26,7 @@ public class FlickrFetchr {
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
     private static final String METHOD_SEARCH = "flickr.photos.search";
     private static final String PARAM_TAGS = "tags";
-    private static final String TAG_DERBY = "roller derby";
+    private static final String TAG_DERBY = "txrd";
     private static final String PARAM_LICENSE = "license";
     private static final String LICENSE_OPEN = "7";
     private static final String PARAM_EXTRAS = "extras";
@@ -34,6 +34,7 @@ public class FlickrFetchr {
     private static final String PARAM_PAGENUM = "page";
     private static final String PARAM_PER_PAGE = "per_page";
     private static final String PER_PAGE_50 = "50";
+    private static int totalPages;
 
 
     //only get the URL for the small version of the picture (if available)
@@ -103,6 +104,9 @@ public class FlickrFetchr {
                     .build().toString();
             String xmlString = getUrl(url);
             Log.i(TAG, "received XML: " + xmlString);
+            int start = xmlString.indexOf("pages") + 7;
+            String total = xmlString.substring(start, xmlString.indexOf(" ", start)-1);
+            totalPages = Integer.parseInt(total);
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new StringReader(xmlString));
@@ -114,5 +118,9 @@ public class FlickrFetchr {
             Log.e(TAG, "Failed to parse items", xppe);
         }
         return items;
+    }
+
+    public static int getTotalPages(){
+        return totalPages;
     }
 }
