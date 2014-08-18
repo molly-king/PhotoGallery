@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import android.util.LruCache;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class ThumbnailDownloader<Token> extends HandlerThread {
     private static final String TAG = "ThumbnailDownloader";
     private static final int MESSAGE_DOWNLOAD = 0;
+    private android.support.v4.util.LruCache<String, Bitmap> cache = new android.support.v4.util.LruCache<String, Bitmap>(40);
 
     Handler mHandler;
     Handler mResponseHandler;
@@ -73,6 +75,20 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
             final String url = requestMap.get(token);
             if (url == null)
                return;
+            if (cache.get(url) != null){
+                mResponseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (requestMap.get(token) != url)
+                        //necessary to double-check because the gridview recycles views. by the time we finish downloading the view may have been recycled and requested a different URL
+                        return;
+
+                    requestMap.remove(token);
+                    mListener.onThumbnailDownloaded(token, cache.get(url));
+                }
+            });
+                return;
+            }
 
             byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
             final Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
@@ -87,6 +103,7 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
                         return;
 
                     requestMap.remove(token);
+                    cache.put(url, bitmap);
                     mListener.onThumbnailDownloaded(token, bitmap);
                 }
             });

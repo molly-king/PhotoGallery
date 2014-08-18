@@ -1,16 +1,21 @@
 package com.txrd.photogallery.app;
 
-import android.app.Fragment;
+import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class PhotoGalleryActivity extends SingleFragmentActivity {
 
+    private static final String TAG = "PhotoGalleryActivity";
+
     @Override
-    public PhotoGalleryFragment createFragment() {
-        return new PhotoGalleryFragment();
+    public PhotoGalleryFragmentFlickr createFragment() {
+        return new PhotoGalleryFragmentFlickr();
     }
 
     @Override
@@ -20,6 +25,22 @@ public class PhotoGalleryActivity extends SingleFragmentActivity {
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        PhotoGalleryFragmentFlickr fragment = (PhotoGalleryFragmentFlickr) getFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())){
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.i(TAG, "received a new search query: " + query);
+
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+                    .commit();
+        }
+
+        fragment.updateItems();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

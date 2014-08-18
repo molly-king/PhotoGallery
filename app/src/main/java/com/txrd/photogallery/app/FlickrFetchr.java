@@ -21,12 +21,14 @@ import java.util.ArrayList;
 public class FlickrFetchr {
 
     public static final String TAG = "FlickrFetchr";
+    public static final String  PREF_SEARCH_QUERY = "searchQuery";
     private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
     private static final String API_KEY = "aa3295803575cee4e4f659bc143c4113";
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
     private static final String METHOD_SEARCH = "flickr.photos.search";
     private static final String PARAM_TAGS = "tags";
     private static final String TAG_DERBY = "txrd";
+    private static final String PARAM_TEXT = "text";
     private static final String PARAM_LICENSE = "license";
     private static final String LICENSE_OPEN = "7";
     private static final String PARAM_EXTRAS = "extras";
@@ -34,6 +36,7 @@ public class FlickrFetchr {
     private static final String PARAM_PAGENUM = "page";
     private static final String PARAM_PER_PAGE = "per_page";
     private static final String PER_PAGE_50 = "50";
+
     private static int totalPages;
 
 
@@ -89,19 +92,19 @@ public class FlickrFetchr {
         }
     }
 
-    public ArrayList<GalleryItem> fetchItems(int page){//put pagenum as parameter
-
+//    public ArrayList<GalleryItem> fetchItems(int page){//put pagenum as parameter
+    public ArrayList<GalleryItem> downloadGalleryItems(String url){
         ArrayList<GalleryItem> items = new ArrayList<GalleryItem>();
         try{
-            String url = Uri.parse(ENDPOINT).buildUpon()
-                    .appendQueryParameter("method", METHOD_SEARCH)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                    .appendQueryParameter(PARAM_TAGS, TAG_DERBY)
-//                    .appendQueryParameter(PARAM_LICENSE, LICENSE_OPEN)
-                    .appendQueryParameter(PARAM_PAGENUM, String.valueOf(page))
-                    .appendQueryParameter(PARAM_PER_PAGE, PER_PAGE_50)
-                    .build().toString();
+//            String url = Uri.parse(ENDPOINT).buildUpon()
+//                    .appendQueryParameter("method", METHOD_SEARCH)
+//                    .appendQueryParameter("api_key", API_KEY)
+//                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+//                    .appendQueryParameter(PARAM_TAGS, TAG_DERBY)
+////                    .appendQueryParameter(PARAM_LICENSE, LICENSE_OPEN)
+//                    .appendQueryParameter(PARAM_PAGENUM, String.valueOf(page))
+//                    .appendQueryParameter(PARAM_PER_PAGE, PER_PAGE_50)
+//                    .build().toString();
             String xmlString = getUrl(url);
             Log.i(TAG, "received XML: " + xmlString);
             int start = xmlString.indexOf("pages") + 7;
@@ -118,6 +121,25 @@ public class FlickrFetchr {
             Log.e(TAG, "Failed to parse items", xppe);
         }
         return items;
+    }
+
+    public ArrayList<GalleryItem> fetchItems(){ //to be used if no search string is put in
+        String url = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_GET_RECENT)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .build().toString();
+        return downloadGalleryItems(url);
+    }
+
+    public ArrayList<GalleryItem> search(String query){
+        String url = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter("method", METHOD_SEARCH)
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .appendQueryParameter(PARAM_TEXT, query)
+                .build().toString();
+        return downloadGalleryItems(url);
     }
 
     public static int getTotalPages(){
